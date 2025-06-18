@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>final decision</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #000;
+      font-family: 'Courier New', monospace;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    .suspect-choice {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      margin-top: auto;
+      margin-bottom: 40px;
+    }
+
+    .suspect {
+      border: 2px solid white;
+      border-radius: 10px;
+      padding: 15px;
+      width: 300px;
+      height: 600px;
+      cursor: pointer;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+      background-color: rgba(255, 255, 255, 0.05);
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .suspect:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+      transform: scale(1.05);
+    }
+
+    .suspect p {
+      margin: 0;
+      font-weight: bold;
+      font-size: 28px;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .suspect img {
+      width: 400px;
+      pointer-events: none;
+      user-select: none;
+      object-fit: contain;
+    }
+
+    #resultOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 9999;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+      text-align: center;
+      user-select: none;
+    }
+
+    #resultOverlay h2 {
+      font-size: 48px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+    }
+
+    #resultOverlay p {
+      font-size: 22px;
+      max-width: 600px;
+      margin-bottom: 40px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <h1>who do you accuse?</h1>
+
+  <div class="suspect-choice" role="list" aria-label="Suspect choices">
+    <div class="suspect" data-id="dakota" tabindex="0" role="listitem" aria-selected="false" aria-label="Dakota">
+      <p>Dakota</p>
+      <img src="./suspects-imgs/DAKOTA-1.png" alt="Dakota" />
+    </div>
+    <div class="suspect" data-id="zachary" tabindex="0" role="listitem" aria-selected="false" aria-label="Zachary">
+      <p>Zachary</p>
+      <img src="./suspects-imgs/ZACHARY-1.png" alt="Zachary" />
+    </div>
+    <div class="suspect" data-id="ash" tabindex="0" role="listitem" aria-selected="false" aria-label="Ash">
+      <p>Ash</p>
+      <img src="./suspects-imgs/ASH-1.png" alt="Ash" />
+    </div>
+    <div class="suspect" data-id="reagan" tabindex="0" role="listitem" aria-selected="false" aria-label="Reagan">
+      <p>Reagan</p>
+      <img src="./suspects-imgs/REAGAN-1.png" alt="Reagan" />
+    </div>
+  </div>
+
+  <div id="resultOverlay" role="alertdialog" aria-modal="true" aria-labelledby="resultTitle" aria-describedby="resultMessage">
+    <h2 id="resultTitle"></h2>
+    <p id="resultMessage"></p>
+  </div>
+
+<script>
+  const suspects = document.querySelectorAll('.suspect')
+  const resultOverlay = document.getElementById('resultOverlay')
+  const resultTitle = document.getElementById('resultTitle')
+  const resultMessage = document.getElementById('resultMessage')
+
+  const results = {
+    dakota: {
+      title: "you lost.",
+      message: "Dakota is innocent. you accused the wrong person."
+    },
+    zachary: {
+      title: "you lost.",
+      message: "Zachary is innocent. you accused the wrong person."
+    },
+    ash: {
+      title: "you won!",
+      message: "Ash is guilty. he’s been manipulating from the shadows all along."
+    },
+    reagan: {
+      title: "you won!",
+      message: "Reagan helped cover up the crime. he's an accomplice, and you saw through it."
+    }
+  }
+
+  let redirectTimeout = null
+
+  function showResult(id) {
+    if (!results[id]) return
+
+    suspects.forEach(s => {
+      if(s.dataset.id === id) {
+        s.setAttribute('aria-selected', 'true')
+        s.style.borderColor = 'yellow'
+      } else {
+        s.setAttribute('aria-selected', 'false')
+        s.style.borderColor = 'white'
+      }
+    })
+
+    resultTitle.textContent = results[id].title
+    resultMessage.textContent = results[id].message
+    resultOverlay.style.display = "flex"
+
+    if (redirectTimeout) clearTimeout(redirectTimeout)
+    redirectTimeout = setTimeout(() => {
+      window.location.href = "page6.html"
+    }, 3000)
+  }
+
+  suspects.forEach(suspect => {
+    suspect.addEventListener('click', () => {
+      showResult(suspect.dataset.id)
+    })
+    suspect.addEventListener('keydown', e => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault()
+        showResult(suspect.dataset.id)
+      }
+    })
+  })
+</script>
+</body>
+</html>

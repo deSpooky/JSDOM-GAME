@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>information</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #000000;
+      overflow: hidden;
+      font-family: 'Courier New', Courier, monospace;
+      color: white;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+    }
+
+    body.fade-in {
+      opacity: 1;
+      overflow: auto;
+    }
+
+    .bgVideo {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: -1;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    #dialogueBox {
+      position: absolute;
+      top: 5%;
+      left: 40%;
+      transform: translateX(-50%);
+      width: 80%;
+      max-width: 800px;
+      padding: 20px;
+      background: rgba(20, 20, 20, 0.85);
+      border: 2px solid white;
+      border-radius: 10px;
+      font-size: 20px;
+      white-space: pre-wrap;
+      text-align: center;
+      filter: url(#sketchy-border);
+      user-select: none;
+    }
+
+    #popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 10;
+      user-select: none;
+    }
+
+    #popup p {
+      font-size: 28px;
+      margin-bottom: 20px;
+      user-select: none;
+    }
+
+    #yesButton {
+      font-size: 22px;
+      padding: 10px 30px;
+      background: transparent;
+      border: 2px solid white;
+      color: white;
+      cursor: pointer;
+      border-radius: 5px;
+      animation: shake 0.5s infinite;
+      font-family: 'Courier New', Courier, monospace;
+      user-select: none;
+    }
+
+    #yesButton:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0) }
+      25% { transform: translateX(-3px) }
+      50% { transform: translateX(3px) }
+      75% { transform: translateX(-3px) }
+      100% { transform: translateX(0) }
+    }
+  </style>
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <filter id="sketchy-border">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="1" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3"/>
+    </filter>
+  </svg>
+
+  <video class="bgVideo" autoplay muted loop playsinline>
+    <source src="./yupping-vids/yapping.mp4" type="video/mp4" />
+  </video>
+
+  <div id="dialogueBox"></div>
+
+  <div id="popup">
+    <p>DO YOU WANT TO HELP?</p>
+    <button id="yesButton">YES.</button>
+  </div>
+
+  <script>
+    window.addEventListener("load", () => {
+      document.body.classList.add("fade-in")
+      nextLine()
+    })
+
+    const dialogueBox = document.getElementById("dialogueBox")
+    const popup = document.getElementById("popup")
+    const yesButton = document.getElementById("yesButton")
+
+    const lines = [
+      "..",
+      " you saw him, didn’t you? always smirking. always in the spotlight.",
+      " now he’s lying in a basement, skull cracked open, and everyone acts like that’s normal..",
+      " i got there first. before the patrol. before the medics.",
+      " and i knew it wasn’t an accident. someone wanted him gone.",
+      " they said he fell. hit his head. the door was locked. the windows untouched.",
+      " he let the killer in. willingly. means he knew them. trusted them.",
+      " he was... an idiot. but he was my friend.",
+      " i’ve got a few leads. a couple streets. a couple names.",
+      " i’m alone. barely holding it together. every step feels like walking on glass.",
+      " i don’t know where this road leads. maybe a dead end. maybe a noose.",
+      " if you’re still here — still listening — that means you’re ready to go all the way.",
+      " help me find the killer."
+    ]
+
+    let currentLine = 0
+    let currentChar = 1
+    let typing = false
+
+    function typeNextChar() {
+      const fullText = lines[currentLine]
+      if (currentChar < fullText.length) {
+        dialogueBox.textContent += fullText.charAt(currentChar)
+        currentChar++
+        setTimeout(typeNextChar, 20)
+      } else {
+        typing = false
+        if (currentLine === lines.length - 1) {
+          setTimeout(() => {
+            popup.style.display = "flex"
+          }, 1000)
+        }
+      }
+    }
+
+    function nextLine() {
+      if (typing) return
+      if (currentLine < lines.length) {
+        dialogueBox.textContent = ""             //господи убейте меня
+        currentChar = 0
+        typing = true
+        typeNextChar()
+        currentLine++
+      }
+    }
+
+    document.addEventListener("keydown", e => {
+      if ([" ", "Enter"].includes(e.key)) {
+        e.preventDefault()
+        nextLine()
+      }
+    })
+
+    document.addEventListener("click", () => {
+      nextLine()
+    })
+
+    yesButton.addEventListener("click", () => {
+      window.location.href = "page3.html"
+    })
+  </script>
+</body>
+</html>

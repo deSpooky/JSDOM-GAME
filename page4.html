@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>suspects</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #000;
+      font-family: 'Courier New', monospace;
+      color: white;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+    }
+
+    body.fade-in {
+      opacity: 1;
+      overflow: auto;
+    }
+
+    video.introVideo {
+      position: fixed;
+      bottom: 0;
+      left: 55%;
+      transform: translateX(-50%);
+      width: 1400px;
+      height: auto;
+      object-fit: cover;
+      z-index: 1;
+      filter: brightness(0.7);
+      background: black;
+      opacity: 1;
+      transition: opacity 1.5s ease;
+      pointer-events: none;
+    }
+
+    #dialogueBox {
+      position: fixed;
+      top: 5%;
+      left: 35%;
+      transform: translateX(-50%);
+      max-width: 600px;
+      padding: 20px;
+      background: rgba(20, 20, 20, 0.85);
+      border: 2px solid white;
+      border-radius: 10px;
+      font-size: 22px;
+      white-space: pre-wrap;
+      text-align: center;
+      z-index: 10;
+      user-select: none;
+      filter: url(#sketchy-border);
+    }
+
+    #suspectsGrid {
+      display: none;
+      position: relative;
+      margin: 40px auto;
+      max-width: 1300px;
+      padding: 0 20px 40px 20px;
+      z-index: 5;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+    }
+
+    #suspectsGrid.visible {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      opacity: 1;
+    }
+
+    #suspectsGrid img {
+      width: 100%;
+      max-width: 300px;
+      cursor: pointer;
+      border: 2px solid white;
+      border-radius: 10px;
+      transition: filter 0.3s ease;
+      filter: brightness(0.85);
+    }
+
+    #suspectsGrid img:hover {
+      filter: brightness(1);
+    }
+
+    .popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.95);
+      border: 2px solid white;
+      border-radius: 12px;
+      padding: 30px;
+      z-index: 50;
+      color: white;
+      width: 600px;
+      max-width: 90vw;
+      user-select: none;
+      transition: opacity 0.3s ease;
+      opacity: 0;
+    }
+
+    .popup.show {
+      display: block;
+      opacity: 1;
+    }
+
+    .popup .close {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      font-size: 40px;
+      cursor: pointer;
+      user-select: none;
+      line-height: 1;
+    }
+
+    #finalButtonContainer {
+      display: none;
+      text-align: center;
+      margin-bottom: 60px;
+      margin-top: 20px;
+      position: relative;
+      z-index: 100;
+    }
+
+    #finalButtonContainer p {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 14px;
+      font-family: 'Courier New', monospace;
+      margin-bottom: 10px;
+    }
+
+    #finalDecisionButton {
+      background: transparent;
+      border: 2px solid white;
+      color: white;
+      padding: 12px 24px;
+      font-size: 18px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 101;
+    }
+
+    #finalDecisionButton:hover {
+      background: white;
+      color: black;
+    }
+
+    svg {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg">
+    <filter id="sketchy-border">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="1" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3"/>
+    </filter>
+  </svg>
+
+  <video id="introVideo" class="introVideo" autoplay loop muted playsinline preload="auto">
+    <source src="./yupping-vids/noyupping.mp4" type="video/mp4" />
+  </video>
+
+  <div id="dialogueBox"></div>
+
+  <div id="suspectsGrid">
+    <img class="dakota" src="./suspects-imgs/DAKOTA-1.png" alt="Dakota" data-default="./suspects-imgs/DAKOTA-1.png" data-hover="./suspects-imgs/DAKOTA-2.png" />
+    <img class="zachary" src="./suspects-imgs/ZACHARY-1.png" alt="Zachary" data-default="./suspects-imgs/ZACHARY-1.png" data-hover="./suspects-imgs/ZACHARY-2.png" />
+    <img class="ash" src="./suspects-imgs/ASH-1.png" alt="Ash" data-default="./suspects-imgs/ASH-1.png" data-hover="./suspects-imgs/ASH-2.png" />
+    <img class="reagan" src="./suspects-imgs/REAGAN-1.png" alt="Reagan" data-default="./suspects-imgs/REAGAN-1.png" data-hover="./suspects-imgs/REAGAN-2.png" />
+  </div>
+
+  <div class="popup" id="dakota-popup">
+    <span class="close" role="button" tabindex="0" aria-label="Close popup">&times;</span>
+    <h2>Dakota Barnett</h2>
+    <p>Head of the charity center. She inherited it after the death of her mother Louise. Strong, tired, restrained. Her card was found at the scene, but there is no evidence that the card appeared there on the day of the murder.</p>
+  </div>
+
+  <div class="popup" id="zachary-popup">
+    <span class="close" role="button" tabindex="0" aria-label="Close popup">&times;</span>
+    <h2>Zachary Payne</h2>
+    <p>A tired punk with principles. He works at the center, is annoyed with Ash, and is suspicious of the rich. None of his belongings were found at the scene. Moreover, he has an alibi, because he was at his friend's record store at the time. But he has valuable evidence against one person.</p>
+  </div>
+
+  <div class="popup" id="ash-popup">
+    <span class="close" role="button" tabindex="0" aria-label="Close popup">&times;</span>
+    <h2>Ash Miller</h2>
+    <p>Cool-headed and confident. He gives off the familiar smell of cigarettes and cologne (ew). He is a popular and wealthy fashion designer of the city and the whole country. He often makes donations to the center and has a warm relationship with Dakota. He has a younger brother, Reagan.</p>
+  </div>
+
+  <div class="popup" id="reagan-popup">
+    <span class="close" role="button" tabindex="0" aria-label="Close popup">&times;</span>
+    <h2>Reagan Miller</h2>
+    <p>Ash's younger brother. He doesn't like to talk and is very cold, just like his older brother. There are suspicions of his involvement in this case. He is a programmer and a white hacker.</p>
+  </div>
+
+  <div id="finalButtonContainer">
+    <p>make sure you checked the info about everyone before you proceed</p>
+    <button id="finalDecisionButton">i'm ready to make the final decision</button>
+  </div>
+
+<script>
+  const introVideo = document.getElementById("introVideo")
+  const introSource = introVideo.querySelector("source")
+  const dialogueBox = document.getElementById("dialogueBox")
+  const suspectsGrid = document.getElementById("suspectsGrid")
+
+  const monologues = [
+    "i’ve seen these guys a thousand times already, maybe my eyes got blurry."
+    , "alright, how about you take a closer look?"
+  ]
+
+  let currentMonologueIndex = 0
+  let currentCharIndex = 0
+  let typing = false
+  let typingTimeout = null
+  let waitingForUserToProceedAfterSecondMonologue = false
+
+  function changeVideo(src) {
+    introVideo.style.opacity = 0
+    setTimeout(() => {
+      introSource.src = src
+      introVideo.load()
+      introVideo.play()
+      introVideo.style.opacity = 1
+    }, 800)
+  }
+
+  function typeNextChar() {
+    if (currentCharIndex < monologues[currentMonologueIndex].length) {
+      dialogueBox.textContent += monologues[currentMonologueIndex].charAt(currentCharIndex)
+      currentCharIndex++
+      typingTimeout = setTimeout(typeNextChar, 30)
+    } else {
+      typing = false
+      if (currentMonologueIndex === 1) {
+        waitingForUserToProceedAfterSecondMonologue = true
+      }
+    }
+  }
+
+  function startTyping() {
+    typing = true
+    dialogueBox.textContent = ""
+    currentCharIndex = 0
+    typeNextChar()
+  }
+
+  function showSuspectsGrid() {
+    dialogueBox.style.display = "none"
+    suspectsGrid.style.display = "grid"
+    setTimeout(() => {
+      suspectsGrid.classList.add("visible")
+      document.getElementById("finalButtonContainer").style.display = "block"
+    }, 50)
+    document.body.classList.add("fade-in")
+  }
+
+  function nextMonologue() {
+    if (typing) {
+      clearTimeout(typingTimeout)
+      dialogueBox.textContent = monologues[currentMonologueIndex]
+      typing = false
+      return
+    }
+
+    if (waitingForUserToProceedAfterSecondMonologue) {
+      introVideo.style.transition = "opacity 2s ease"
+      introVideo.style.opacity = 0
+      waitingForUserToProceedAfterSecondMonologue = false
+
+      setTimeout(() => {
+        showSuspectsGrid()
+      }, 2000)
+      return
+    }
+
+    currentMonologueIndex++
+    if (currentMonologueIndex < monologues.length) {
+      if (currentMonologueIndex === 1) {
+        changeVideo("./yupping-vids/yupping4.mp4")
+      }
+      startTyping()
+    }
+  }
+
+  window.addEventListener("load", () => {
+    document.body.classList.add("fade-in")
+    startTyping()
+  })
+
+  document.addEventListener("keydown", e => {
+    if ([" ", "Enter"].includes(e.key)) {
+      e.preventDefault()
+      nextMonologue()
+    }
+    if (e.key === "Escape") {
+      document.querySelectorAll(".popup.show").forEach(popup => {
+        hidePopup(popup)
+      })
+    }
+  })
+
+  document.addEventListener("click", () => {
+    nextMonologue()
+  })
+
+  suspectsGrid.querySelectorAll("img").forEach(img => {
+    img.addEventListener("mouseenter", () => {
+      img.src = img.getAttribute("data-hover")
+    })
+    img.addEventListener("mouseleave", () => {
+      img.src = img.getAttribute("data-default")
+    })
+  })
+
+  function showPopup(popup) {
+    popup.classList.add("show")
+  }
+
+  function hidePopup(popup) {
+    popup.classList.remove("show")
+    setTimeout(() => {
+      if (!popup.classList.contains("show")) {
+        popup.style.display = "none"
+      }
+    }, 300)
+  }
+
+  function setupPopup(characterClass, popupId) {
+    const charImg = document.querySelector(`.${characterClass}`)
+    const popup = document.getElementById(popupId)
+    const closeBtn = popup.querySelector('.close')
+
+    charImg.addEventListener('click', () => {
+      popup.style.display = 'block'
+      setTimeout(() => {
+        showPopup(popup)
+      }, 10)
+    })
+
+    closeBtn.addEventListener('click', () => {
+      hidePopup(popup)
+    })
+
+    window.addEventListener('click', (e) => {
+      if (e.target === popup) {
+        hidePopup(popup)
+      }
+    })
+  }
+
+  setupPopup('dakota', 'dakota-popup')
+  setupPopup('zachary', 'zachary-popup')
+  setupPopup('ash', 'ash-popup')
+  setupPopup('reagan', 'reagan-popup')
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("finalDecisionButton")
+    if (btn) {
+      btn.addEventListener("click", () => {
+        window.location.href = "page5.html"
+      })
+    }
+  })
+</script>
+</body>
+</html>

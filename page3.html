@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>case</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #000;
+      font-family: 'Courier New', monospace;
+      color: white;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+    }
+
+    body.fade-in {
+      opacity: 1
+    }
+
+    video.bgVideo {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100vw;
+      height: auto;
+      object-fit: cover;
+      z-index: 0;
+      filter: brightness(0.7)
+    }
+
+    #dialogueBox {
+      position: absolute;
+      top: 2%;
+      left: 20%;
+      transform: translateX(-50%);
+      width: 400px;
+      max-width: 800px;
+      padding: 20px;
+      background: rgba(20, 20, 20, 0.85);
+      border: 2px solid white;
+      border-radius: 10px;
+      font-size: 20px;
+      white-space: pre-wrap;
+      text-align: center;
+      filter: url(#sketchy-border);
+      z-index: 5
+    }
+
+    #carouselWrapper {
+      display: none;
+      position: fixed;
+      top: 5%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 80vh
+    }
+
+    #pagesContainer {
+      display: flex;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      scroll-behavior: smooth
+    }
+
+    .page {
+      flex: 0 0 96%;
+      height: 450px;
+      background: rgba(20, 20, 20, 0.9);
+      border: 2px solid white;
+      border-radius: 12px;
+      margin: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: white
+    }
+
+    .page img {
+      max-width: 100%;
+      border-radius: 8px;
+      user-select: none
+    }
+
+    .page .desc {
+      margin-top: 10px;
+      font-size: 18px;
+      text-align: center;
+      user-select: none
+    }
+
+    #readButton {
+      display: none;
+      font-family: 'Courier New', Courier, monospace;
+      position: fixed;
+      bottom: 8%;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: transparent;
+      color: white;
+      font-size: 18px;
+      padding: 10px 20px;
+      border: 2px solid white;
+      border-radius: 8px;
+      cursor: pointer;
+      z-index: 10
+    }
+
+    .arrow {
+      display: none;
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 32px;
+      color: white;
+      background: rgba(0, 0, 0, 0.5);
+      border: none;
+      cursor: pointer;
+      z-index: 15;
+      padding: 10px;
+      border-radius: 50%;
+      user-select: none
+    }
+
+    #leftArrow {
+      left: 10%
+    }
+
+    #rightArrow {
+      right: 10%
+    }
+
+    #popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(30, 30, 30, 0.95);
+      border: 2px solid white;
+      padding: 30px;
+      border-radius: 12px;
+      color: white;
+      z-index: 20;
+      text-align: center;
+      font-size: 20px
+    }
+
+    .pages {
+      width: 300px;
+      height: 300px
+    }
+
+    svg {
+      display: none
+    }
+  </style>
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg">
+    <filter id="sketchy-border">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="1" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3"/>
+    </filter>
+  </svg>
+
+  <video class="bgVideo" autoplay muted loop playsinline id="video">
+    <source src="./yupping-vids/yapping2.mp4" type="video/mp4" />
+  </video>
+
+  <div id="dialogueBox"></div>
+
+  <div id="carouselWrapper">
+    <button id="leftArrow" class="arrow">&#8592;</button>
+    <div id="pagesContainer">
+      <div class="page">
+        <img class="pages" src="./carousel-imgs/case.PNG" alt="Page 1" />
+        <div class="desc">1. Case File – Closed
+        Case ID: 4418-ACD-92
+        Filed by: Detective S. Greene
+        Status: Closed — Accidental Death
+        Summary:
+        Victim found in basement of residential building, 
+        head trauma consistent with fall down stairs. 
+        No signs of forced entry. No suspects. 
+        Case marked as accidental fall.
+        Note: Report is unusually brief.</div>
+      </div>
+      <div class="page">
+        <img class="pages" src="./carousel-imgs/card.png" alt="Page 2" />
+        <div class="desc">Center worker ID. Claimed “lost” last week. Found in victim’s living room.</div>
+      </div>
+      <div class="page">
+        <img class="pages" src="./carousel-imgs/finance.png" alt="Page 3" />
+        <div class="desc">Financial records. Falsified donations, recurring transfers. Laundering?</div>
+      </div>
+      <div class="page">
+        <img class="pages" src="./carousel-imgs/note.png" alt="Page 4" />
+        <div class="desc">Burnt note fragment: "...if anyone finds out, we’re both dead!"</div>
+      </div>
+      <div class="page">
+        <img class="pages" src="./carousel-imgs/cigs.png" alt="Page 5" />
+        <div class="desc">Empty cigarette pack. Rare brand. Only one person I know smokes these.</div>
+      </div>
+    </div>
+    <button id="rightArrow" class="arrow">&#8594;</button>
+  </div>
+
+  <button id="readButton">ALL DONE</button>
+
+  <script>
+  window.addEventListener("load", () => {
+    document.body.classList.add("fade-in")
+    nextLine()
+  })
+
+  const dialogueBox = document.getElementById("dialogueBox")
+  const carouselWrapper = document.getElementById("carouselWrapper")
+  const pagesContainer = document.getElementById("pagesContainer")
+  const readButton = document.getElementById("readButton")
+  const leftArrow = document.getElementById("leftArrow")
+  const rightArrow = document.getElementById("rightArrow")
+  const video = document.getElementById("video")
+
+  let lines = [
+    " not many leads."
+    , " everything's dry. vague."
+    , " i’ve been staring at these scraps for hours."
+    , " here. maybe you’ll find something i can’t."
+  ]
+
+  let currentLine = 0
+  let currentChar = 0
+  let typing= false
+  let showCarouselAllowed= true
+
+  function typeNextChar() {
+    const fullText = lines[currentLine]
+    if (currentChar < fullText.length) {
+      dialogueBox.innerHTML += fullText.charAt(currentChar)
+      currentChar++
+      setTimeout(typeNextChar, 20)
+    } else {
+      typing = false
+      if (showCarouselAllowed && currentLine === lines.length - 1) {
+        setTimeout(() => {
+          carouselWrapper.style.display = "block"
+          readButton.style.display= "block"
+          leftArrow.style.display= "block"
+          rightArrow.style.display= "block"
+        }, 1000)
+      }
+      if (!showCarouselAllowed && currentLine === lines.length - 1) {
+        setTimeout(() => window.location.href = "page4.html", 1500)
+      }
+    }
+  }
+
+  function nextLine() {
+    if (typing) return
+    if (currentLine < lines.length) {
+      dialogueBox.innerHTML = ""
+      currentChar= 0
+      typing= true
+      typeNextChar()
+      currentLine++
+    }
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if ([" ", "Enter"].includes(e.key)) {
+      e.preventDefault()
+      nextLine()
+    }
+  })
+
+  document.addEventListener("click", () => {
+    nextLine()
+  })
+
+  let currentPage = 0
+  const totalPages = pagesContainer.children.length
+
+  leftArrow.addEventListener("click", () => {
+    currentPage = (currentPage - 1 + totalPages) % totalPages
+    scrollToPage(currentPage)
+  })
+  rightArrow.addEventListener("click", () => {
+    currentPage = (currentPage + 1) % totalPages
+    scrollToPage(currentPage)
+  })
+  function scrollToPage(idx) {
+    pagesContainer.scrollTo({
+      left: idx * pagesContainer.clientWidth,            // че я делаю вообще
+      behavior: "smooth"
+    })
+  }
+
+  readButton.addEventListener("click", () => {
+    showCarouselAllowed = false
+
+    video.querySelector("source").src = "./yupping-vids/yupping3.mp4"
+    video.load()
+    video.play()
+
+    carouselWrapper.style.display= "none"
+    readButton.style.display= "none"
+    leftArrow.style.display= "none"
+    rightArrow.style.display= "none"
+
+    lines = [
+      " found anything?"
+      , " hmm, hope it's useful."
+      , " come on, we've got work to do."
+    ]
+    currentLine= 0
+    currentChar= 0
+    typing= false
+    dialogueBox.innerHTML = ""
+
+    nextLine()
+  })
+  </script>
+</body>
+</html>
